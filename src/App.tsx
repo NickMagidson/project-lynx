@@ -1,58 +1,460 @@
-import { Viewer, Entity, PointGraphics, EntityDescription } from 'resium'
-import { Cartesian3, Ion } from 'cesium'
-import './App.css'
+import { Viewer, Entity, PointGraphics, EntityDescription } from 'resium';
+import { Cartesian3, Ion } from 'cesium';
+import './App.css';
 import { useEffect, useState } from 'react';
-import { getSatelliteInfo } from "tle.js";
-import { mockSatData } from './mockSatData';
+import { getSatelliteInfo } from 'tle.js';
+import { activeSatData } from './activeSatData';
+
+// Pulls data from Celestrak TLE files 
 
 Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmU4MzM0Mi0xN2EyLTQ1MTUtOTJlYi02YzVhMjQ2Njc5NGQiLCJpZCI6MjQ3MDA3LCJpYXQiOjE3Mjg1MTg3MjJ9.yPRy0QbCHvLMNl8PPKBHHR_fIzpWmkUAsmvnSuDod_U';
 
+// Mock data in the specified JSON format
+const satelliteData = [{
+  "OBJECT_NAME": "ISS (ZARYA)",
+  "OBJECT_ID": "1998-067A",
+  "EPOCH": "2025-01-22T19:25:04.138752",
+  "MEAN_MOTION": 15.50411369,
+  "ECCENTRICITY": 0.0002239,
+  "INCLINATION": 51.6395,
+  "RA_OF_ASC_NODE": 307.1435,
+  "ARG_OF_PERICENTER": 116.3272,
+  "MEAN_ANOMALY": 339.5792,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 25544,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 49261,
+  "BSTAR": 0.00047853,
+  "MEAN_MOTION_DOT": 0.00027349,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "CSS (TIANHE)",
+  "OBJECT_ID": "2021-035A",
+  "EPOCH": "2025-01-22T08:35:08.113920",
+  "MEAN_MOTION": 15.58276597,
+  "ECCENTRICITY": 0.0003303,
+  "INCLINATION": 41.4641,
+  "RA_OF_ASC_NODE": 188.0325,
+  "ARG_OF_PERICENTER": 332.1092,
+  "MEAN_ANOMALY": 27.9568,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 48274,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 21336,
+  "BSTAR": 7.7547e-5,
+  "MEAN_MOTION_DOT": 5.716e-5,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "ISS (NAUKA)",
+  "OBJECT_ID": "2021-066A",
+  "EPOCH": "2025-01-22T07:14:46.159296",
+  "MEAN_MOTION": 15.50384033,
+  "ECCENTRICITY": 0.0002398,
+  "INCLINATION": 51.6397,
+  "RA_OF_ASC_NODE": 309.6603,
+  "ARG_OF_PERICENTER": 116.3861,
+  "MEAN_ANOMALY": 27.0151,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 49044,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 19847,
+  "BSTAR": 0.00047021,
+  "MEAN_MOTION_DOT": 0.00026838,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "FREGAT DEB",
+  "OBJECT_ID": "2011-037PF",
+  "EPOCH": "2025-01-22T03:38:09.962880",
+  "MEAN_MOTION": 12.26602622,
+  "ECCENTRICITY": 0.0938302,
+  "INCLINATION": 51.6567,
+  "RA_OF_ASC_NODE": 74.4141,
+  "ARG_OF_PERICENTER": 233.528,
+  "MEAN_ANOMALY": 117.552,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 49271,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 16196,
+  "BSTAR": 0.051043,
+  "MEAN_MOTION_DOT": 0.00024959,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "CSS (WENTIAN)",
+  "OBJECT_ID": "2022-085A",
+  "EPOCH": "2025-01-22T08:35:08.113920",
+  "MEAN_MOTION": 15.58276597,
+  "ECCENTRICITY": 0.0003303,
+  "INCLINATION": 41.4641,
+  "RA_OF_ASC_NODE": 188.0325,
+  "ARG_OF_PERICENTER": 332.1092,
+  "MEAN_ANOMALY": 27.9568,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 53239,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 13803,
+  "BSTAR": 7.7547e-5,
+  "MEAN_MOTION_DOT": 5.716e-5,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "CSS (MENGTIAN)",
+  "OBJECT_ID": "2022-143A",
+  "EPOCH": "2025-01-22T08:35:08.113920",
+  "MEAN_MOTION": 15.58276597,
+  "ECCENTRICITY": 0.0003303,
+  "INCLINATION": 41.4641,
+  "RA_OF_ASC_NODE": 188.0325,
+  "ARG_OF_PERICENTER": 332.1092,
+  "MEAN_ANOMALY": 27.9568,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 54216,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 12715,
+  "BSTAR": 7.7547e-5,
+  "MEAN_MOTION_DOT": 5.716e-5,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "CYGNUS NG-21",
+  "OBJECT_ID": "2024-139A",
+  "EPOCH": "2025-01-22T07:14:46.159296",
+  "MEAN_MOTION": 15.50384033,
+  "ECCENTRICITY": 0.0002398,
+  "INCLINATION": 51.6397,
+  "RA_OF_ASC_NODE": 309.6603,
+  "ARG_OF_PERICENTER": 116.3861,
+  "MEAN_ANOMALY": 27.0151,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 60378,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 2639,
+  "BSTAR": 0.00047021,
+  "MEAN_MOTION_DOT": 0.00026838,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "PROGRESS-MS 28",
+  "OBJECT_ID": "2024-145A",
+  "EPOCH": "2025-01-22T07:14:46.159296",
+  "MEAN_MOTION": 15.50384033,
+  "ECCENTRICITY": 0.0002398,
+  "INCLINATION": 51.6397,
+  "RA_OF_ASC_NODE": 309.6603,
+  "ARG_OF_PERICENTER": 116.3861,
+  "MEAN_ANOMALY": 27.0151,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 60450,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 2469,
+  "BSTAR": 0.00047021,
+  "MEAN_MOTION_DOT": 0.00026838,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "SOYUZ-MS 26",
+  "OBJECT_ID": "2024-162A",
+  "EPOCH": "2025-01-22T07:14:46.159296",
+  "MEAN_MOTION": 15.50384033,
+  "ECCENTRICITY": 0.0002398,
+  "INCLINATION": 51.6397,
+  "RA_OF_ASC_NODE": 309.6603,
+  "ARG_OF_PERICENTER": 116.3861,
+  "MEAN_ANOMALY": 27.0151,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 61043,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 49238,
+  "BSTAR": 0.00047021,
+  "MEAN_MOTION_DOT": 0.00026838,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "CREW DRAGON 9",
+  "OBJECT_ID": "2024-178A",
+  "EPOCH": "2025-01-22T07:14:46.159296",
+  "MEAN_MOTION": 15.50384033,
+  "ECCENTRICITY": 0.0002398,
+  "INCLINATION": 51.6397,
+  "RA_OF_ASC_NODE": 309.6603,
+  "ARG_OF_PERICENTER": 116.3861,
+  "MEAN_ANOMALY": 27.0151,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 61447,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 49238,
+  "BSTAR": 0.00047021,
+  "MEAN_MOTION_DOT": 0.00026838,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "SHENZHOU-19 (SZ-19)",
+  "OBJECT_ID": "2024-194A",
+  "EPOCH": "2025-01-22T08:35:08.113920",
+  "MEAN_MOTION": 15.58276597,
+  "ECCENTRICITY": 0.0003303,
+  "INCLINATION": 41.4641,
+  "RA_OF_ASC_NODE": 188.0325,
+  "ARG_OF_PERICENTER": 332.1092,
+  "MEAN_ANOMALY": 27.9568,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 61683,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 21310,
+  "BSTAR": 7.7547e-5,
+  "MEAN_MOTION_DOT": 5.716e-5,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "TIANZHOU-8",
+  "OBJECT_ID": "2024-211A",
+  "EPOCH": "2025-01-22T08:35:08.113920",
+  "MEAN_MOTION": 15.58276597,
+  "ECCENTRICITY": 0.0003303,
+  "INCLINATION": 41.4641,
+  "RA_OF_ASC_NODE": 188.0325,
+  "ARG_OF_PERICENTER": 332.1092,
+  "MEAN_ANOMALY": 27.9568,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 61983,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 801,
+  "BSTAR": 7.7547e-5,
+  "MEAN_MOTION_DOT": 5.716e-5,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "PROGRESS-MS 29",
+  "OBJECT_ID": "2024-215A",
+  "EPOCH": "2025-01-22T07:14:46.159296",
+  "MEAN_MOTION": 15.50384033,
+  "ECCENTRICITY": 0.0002398,
+  "INCLINATION": 51.6397,
+  "RA_OF_ASC_NODE": 309.6603,
+  "ARG_OF_PERICENTER": 116.3861,
+  "MEAN_ANOMALY": 27.0151,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62030,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 49238,
+  "BSTAR": 0.00047021,
+  "MEAN_MOTION_DOT": 0.00026838,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "2024-013E",
+  "OBJECT_ID": "2024-013E",
+  "EPOCH": "2025-01-21T19:06:08.578368",
+  "MEAN_MOTION": 15.78293892,
+  "ECCENTRICITY": 0.0013933,
+  "INCLINATION": 41.466,
+  "RA_OF_ASC_NODE": 185.2852,
+  "ARG_OF_PERICENTER": 303.4291,
+  "MEAN_ANOMALY": 56.5221,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62056,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 1114,
+  "BSTAR": 0.00085389,
+  "MEAN_MOTION_DOT": 0.00155054,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "YODAKA",
+  "OBJECT_ID": "1998-067XB",
+  "EPOCH": "2025-01-22T04:32:01.917312",
+  "MEAN_MOTION": 15.67197361,
+  "ECCENTRICITY": 0.0014296,
+  "INCLINATION": 51.6339,
+  "RA_OF_ASC_NODE": 307.7061,
+  "ARG_OF_PERICENTER": 145.6826,
+  "MEAN_ANOMALY": 214.5096,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62295,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 685,
+  "BSTAR": 0.0026961,
+  "MEAN_MOTION_DOT": 0.00307127,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "1998-067XC",
+  "OBJECT_ID": "1998-067XC",
+  "EPOCH": "2025-01-22T04:43:51.831552",
+  "MEAN_MOTION": 15.60670915,
+  "ECCENTRICITY": 0.0014585,
+  "INCLINATION": 51.6353,
+  "RA_OF_ASC_NODE": 308.5134,
+  "ARG_OF_PERICENTER": 129.6271,
+  "MEAN_ANOMALY": 230.6013,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62296,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 682,
+  "BSTAR": 0.0017948,
+  "MEAN_MOTION_DOT": 0.00154926,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "1998-067XD",
+  "OBJECT_ID": "1998-067XD",
+  "EPOCH": "2025-01-22T03:39:17.567424",
+  "MEAN_MOTION": 15.64856671,
+  "ECCENTRICITY": 0.0015702,
+  "INCLINATION": 51.6346,
+  "RA_OF_ASC_NODE": 308.2125,
+  "ARG_OF_PERICENTER": 135.8973,
+  "MEAN_ANOMALY": 224.3277,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62297,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 682,
+  "BSTAR": 0.0024241,
+  "MEAN_MOTION_DOT": 0.00249806,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "YOMOGI",
+  "OBJECT_ID": "1998-067XE",
+  "EPOCH": "2025-01-22T01:37:41.137536",
+  "MEAN_MOTION": 15.60784758,
+  "ECCENTRICITY": 0.0014513,
+  "INCLINATION": 51.6346,
+  "RA_OF_ASC_NODE": 309.1495,
+  "ARG_OF_PERICENTER": 129.8384,
+  "MEAN_ANOMALY": 230.3888,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62298,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 680,
+  "BSTAR": 0.0017391,
+  "MEAN_MOTION_DOT": 0.00150678,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "ONGLAISAT",
+  "OBJECT_ID": "1998-067XF",
+  "EPOCH": "2025-01-22T08:15:25.511328",
+  "MEAN_MOTION": 15.65485885,
+  "ECCENTRICITY": 0.0013577,
+  "INCLINATION": 51.6348,
+  "RA_OF_ASC_NODE": 307.2464,
+  "ARG_OF_PERICENTER": 140.2656,
+  "MEAN_ANOMALY": 219.9336,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62299,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 683,
+  "BSTAR": 0.0026465,
+  "MEAN_MOTION_DOT": 0.00280323,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "ISS DEB",
+  "OBJECT_ID": "1998-067XG",
+  "EPOCH": "2025-01-22T04:24:18.375264",
+  "MEAN_MOTION": 15.5856011,
+  "ECCENTRICITY": 0.0011561,
+  "INCLINATION": 51.6374,
+  "RA_OF_ASC_NODE": 309.1777,
+  "ARG_OF_PERICENTER": 129.5836,
+  "MEAN_ANOMALY": 230.6179,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62376,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 520,
+  "BSTAR": 0.0018433,
+  "MEAN_MOTION_DOT": 0.00146381,
+  "MEAN_MOTION_DDOT": 0
+},{
+  "OBJECT_NAME": "DRAGON CRS-31 DEB",
+  "OBJECT_ID": "2024-200B",
+  "EPOCH": "2025-01-22T00:57:14.450976",
+  "MEAN_MOTION": 16.03905875,
+  "ECCENTRICITY": 0.0031879,
+  "INCLINATION": 51.6292,
+  "RA_OF_ASC_NODE": 301.3459,
+  "ARG_OF_PERICENTER": 286.8128,
+  "MEAN_ANOMALY": 77.6406,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 62608,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 124,
+  "BSTAR": 0.0014219,
+  "MEAN_MOTION_DOT": 0.00996984,
+  "MEAN_MOTION_DDOT": 0.0005286
+}]
+
+
+// Function to convert JSON to TLE lines
+const convertToTLE = (sat: any) => {
+  const line1 = `1 ${sat.NORAD_CAT_ID.toString().padStart(5, '0')}U ${sat.OBJECT_ID.slice(0, 8)} ${sat.EPOCH.slice(2, 8)}.${Math.floor(
+    (new Date(sat.EPOCH).getTime() % 86400000) / 86400
+  ).toString().padStart(8, '0')}  .00000000  00000-0  00000-0 0  9990`;
+  const line2 = `2 ${sat.NORAD_CAT_ID.toString().padStart(5, '0')} ${sat.INCLINATION.toFixed(4).padStart(8, ' ')} ${sat.RA_OF_ASC_NODE.toFixed(4).padStart(
+    8,
+    ' '
+  )} ${sat.ECCENTRICITY.toString().slice(2, 8).padStart(7, '0')} ${sat.ARG_OF_PERICENTER.toFixed(4).padStart(8, ' ')} ${sat.MEAN_ANOMALY.toFixed(4).padStart(
+    8,
+    ' '
+  )} ${sat.MEAN_MOTION.toFixed(8).padStart(11, ' ')}`;
+
+  return [line1, line2];
+};
+
 const App = () => {
-  
-  const [entities, setEntities] = useState<JSX.Element[]>([]);
+  const [entities, setEntities] = useState<JSX.Element[]>([]);  
 
   useEffect(() => {
     const updateEntities = () => {
-    const tleArray = mockSatData
+      const newEntities = activeSatData.slice(0, 600).map((sat, index) => {
+        const tle = convertToTLE(sat);
+        const observationDate = new Date().getTime();
 
-    const newEntities = tleArray.map((tle, index) => {
-      const observationDate = new Date().getTime(); // Current time
-      const getSatInfo = getSatelliteInfo(tle, observationDate);
-      // const latAndLong = getLatLngObj(tle);
-      const { lat, lng } = getSatInfo;
+        const satInfo = getSatelliteInfo(tle, observationDate);
+        if (!satInfo) {
+          console.warn(`Failed to process satellite: ${sat.OBJECT_NAME}`);
+          return null;
+        }
 
-      const satName = tle.split('\n')[0].trim(); // Extract satellite name
+        const { lat, lng, height } = satInfo;
 
-      return (
-        <Entity
-          key={index}
-          position={Cartesian3.fromDegrees(lng, lat, 400000)}
-          point={{ pixelSize: 10 }}
-        >
-          <PointGraphics pixelSize={10} />
-          <EntityDescription>
-            <h1>{satName}</h1>
-            <p>Latitude: {lat}</p>
-            <p>Longitude: {lng}</p>
-          </EntityDescription>
-        </Entity>
-      );
-    });
+        return (
+          <Entity
+            key={index}
+            position={Cartesian3.fromDegrees(lng, lat, height * 1000)} // Convert km to meters
+            // point={{ pixelSize: 10 }}
+          >
+            <PointGraphics pixelSize={5} />
+            <EntityDescription>
+              <h1>{sat.OBJECT_NAME}</h1>
+              <p>Latitude: {lat.toFixed(2)}</p>
+              <p>Longitude: {lng.toFixed(2)}</p>
+              <p>Altitude: {height.toFixed(2)} km</p>
+            </EntityDescription>
+          </Entity>
+        );
+      });
 
-    setEntities(newEntities);
-  };
+      setEntities(newEntities.filter((entity): entity is JSX.Element => entity !== null));
+    };
 
-  updateEntities(); // Initial call
-  const intervalId = setInterval(updateEntities, 5000); // Update every 5 seconds
+    updateEntities(); // Initial call
+    const intervalId = setInterval(updateEntities, 60000); // Update every minute
 
-  return () => clearInterval(intervalId); // Cleanup on unmount
-}, []);
- 
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, []);
+
   return (
     <Viewer animation={false} timeline={false} full>
       {entities}
     </Viewer>
-  )
-}
+  );
+};
 
-export default App
+export default App;
