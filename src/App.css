@@ -8,3 +8,10 @@
 .cesium-widget-credits{
   display:none !important;
 }
+
+.cesium-sceneModePicker-wrapper,
+.cesium-viewer-geocoderContainer,
+.cesium-viewer-toolbar > button:nth-child(4) {
+  display: none !important;
+}
+

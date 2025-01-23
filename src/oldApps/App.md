@@ -3,7 +3,7 @@ import { Cartesian3, Ion } from 'cesium'
 import './App.css'
 import { useEffect, useState } from 'react';
 import { getSatelliteInfo } from "tle.js";
-import { mockSatData } from '../mockSatData';
+import { mockSatData } from '../mockTLE/mockSatData';
 
 // Pulls data from raw string
 
