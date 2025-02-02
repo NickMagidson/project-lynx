@@ -1,10 +1,11 @@
 import { Viewer, Entity, PointGraphics, EntityDescription } from 'resium';
 import { Cartesian3, Ion } from 'cesium';
 import './App.css';
-import { act, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getSatelliteInfo } from 'tle.js';
-// import { activeSatData } from './activeSatData'; ACTIVE file
-import { fetchSatelliteData } from './api';
+import { activeSatData } from './activeSatData';
+// import { fetchSatelliteData } from './api';
+import About from './About';
 
 // API now pulls ACTIVE satellites and can change GROUPS
 // So far fetching speed is an issue. Error 403
@@ -42,31 +43,32 @@ const convertToTLE = (sat: Satellite): [string, string] => {
   return [line1, line2];
 };
 
+
 const App = () => {
   const [entities, setEntities] = useState<JSX.Element[]>([]);  
-  const [activeSatData, setActiveSatData] = useState<Satellite[]>([]);
+  // const [activeSatData, setActiveSatData] = useState<Satellite[]>([]);
 
-  const groups = ['STARLINK', 'Beidou', 'GEO', 'IRIDIUM', 'COSMOS', 'GPS', 'GALILEO', 'GLONASS', 'BEIDOU', 'SBAS', 'SCN', 'AMATEUR', 'X-COMM', 'OTHER'];
+  // const groups = ['STARLINK', 'Beidou', 'GEO', 'IRIDIUM', 'COSMOS', 'GPS', 'GALILEO', 'GLONASS', 'BEIDOU', 'SBAS', 'SCN', 'AMATEUR', 'X-COMM', 'OTHER'];
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchSatelliteData('ACTIVE'); // Replace 'STARLINK' with the desired group
-        setActiveSatData(data);
-      } catch (error) {
-        console.error('Error fetching satellite data:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const data = await fetchSatelliteData('ACTIVE'); // Replace 'STARLINK' with the desired group
+  //       setActiveSatData(data);
+  //     } catch (error) {
+  //       console.error('Error fetching satellite data:', error);
+  //     }
+  //   };
 
-    fetchData();
-    // console.log(JSON.stringify(activeSatData));
-  }, [activeSatData]);
+  //   fetchData();
+  //   // console.log(JSON.stringify(activeSatData));
+  // }, [activeSatData]);
 
 
   useEffect(() => {
     const updateEntities = () => {
-      const newEntities = activeSatData.slice(0, 600).map((sat, index) => {
+      const newEntities = activeSatData.slice(0, 1900).map((sat, index) => {
         const tle = convertToTLE(sat);
         const observationDate = new Date().getTime();
 
@@ -102,12 +104,16 @@ const App = () => {
     const intervalId = setInterval(updateEntities, 60000); // Update every minute
 
     return () => clearInterval(intervalId); // Cleanup on unmount
-  }, [activeSatData]);
+  }, []);
 
   return (
-    <Viewer animation={false} timeline={false} full>
-      {entities}
-    </Viewer>
+    <>
+      <Viewer animation={false} timeline={false} full>
+        {entities}
+      </Viewer>
+      <About />
+    </>
+
   );
 };
 
