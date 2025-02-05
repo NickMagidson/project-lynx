@@ -97,9 +97,7 @@ const App = () => {
                 <p>Altitude: {height.toFixed(2)} km</p>
                 <p>Mean Motion: {sat.MEAN_MOTION.toFixed(2)}</p>
                 <p>Eccentricity: {sat.ECCENTRICITY}</p>
-                <p>Eccentricity: {sat.ECCENTRICITY}</p>
-                <p>Eccentricity: {sat.ECCENTRICITY}</p>
-                <p>Eccentricity: {sat.ECCENTRICITY}</p>
+
               </div>
 
             </EntityDescription>
