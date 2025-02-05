@@ -16,6 +16,12 @@
   display: none !important;
 }
 
+.cesium-infoBox-title {
+  /* display: none !important; */
+  background-color: transparent;
+  
+}
+
 .about-modal {
   position: absolute;
   top: 50%;
@@ -38,23 +44,95 @@
   cursor: pointer;
 }
 
+.cesium-infoBox {
+  height: auto;
+  max-width: 23rem;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(17, 25, 40, 0.75);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+/* button.cesium-infoBox-camera {
+  top: 8.1%;
+  left: 82.8%;
+  width: 30px;
+  height: 30px;
+} */
+
+/* button.cesium-infoBox-close {
+  top: 13px;
+  font-size: 28px;
+  height: auto;
+  margin-right: .5rem;
+} */
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+/* Close button is good to go */
+/* Camera button may need to start from mobile */
+
+@media (max-width: 400px) {
+  .cesium-infoBox {
+    position: fixed;
+    top: 68%;
+    right: 0;
+    width: 100%;
+    z-index: 10;
+    height: fit-content;
+    height: 32%;
+    overflow-y: auto;
+  }
+
+  /* button.cesium-infoBox-camera {
+    margin-right: 15%;
+    left: 77.8%;
+  } */
+
+
+  /* .cesium-infoBox-description  {
+    overflow-y: auto;
+    height: 50%;
+    background-color: brown;
+  } */
+}
+
 @media (min-width: 932px) {
   .about-modal {
     max-width: 72%;
     height: auto;
   }
+
+  /* button.cesium-infoBox-camera {
+    left: 78%;
+  } */
 }
 
 @media (min-width: 1200px) {
   .about-modal {
     width: 65%;
   }
+  /* button.cesium-infoBox-camera {
+    left: 80%;
+  } */
 }
 
 @media (min-width: 1440px) {
   .about-modal {
     width: 54%;
   }
+
+  .cesium-infoBox {
+    height: auto;
+  }
+
 }
 
 @media (min-width: 1600px) {

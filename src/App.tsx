@@ -43,6 +43,21 @@ const convertToTLE = (sat: Satellite): [string, string] => {
   return [line1, line2];
 };
 
+//Goes with Entities
+const infoRowStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center', 
+  paddingInline: '5px',
+};
+
+const InfoRow = ({ label, value }: { label: string; value: string | number }) => (
+  <div style={infoRowStyle}>
+    <strong style={{ marginBottom: '10px', marginTop: '1px' }}>{label}:</strong>
+    <p style={{ marginBottom: '10px', marginTop: '1px' }}>{value}</p>
+  </div>
+);
+
 
 const App = () => {
   const [entities, setEntities] = useState<JSX.Element[]>([]);  
@@ -84,14 +99,24 @@ const App = () => {
           <Entity
             key={index}
             position={Cartesian3.fromDegrees(lng, lat, height * 1000)} // Convert km to meters
+            name="Orbital Elements"
             // point={{ pixelSize: 10 }}
           >
             <PointGraphics pixelSize={2} />
             <EntityDescription>
               <h1>{sat.OBJECT_NAME}</h1>
-              <p>Latitude: {lat.toFixed(2)}</p>
-              <p>Longitude: {lng.toFixed(2)}</p>
-              <p>Altitude: {height.toFixed(2)} km</p>
+              <hr style={{ border: '1px solid lightgray' }} />
+              <div className='orbit-elems'>
+                <InfoRow label="NORAD ID" value={sat.NORAD_CAT_ID} />
+                <InfoRow label="Launch Year" value={sat.OBJECT_ID.slice(0, 4)} />
+                <InfoRow label="Inclination" value={sat.INCLINATION} />
+                <InfoRow label="Right Ascension" value={sat.RA_OF_ASC_NODE} />
+                <InfoRow label="Mean Motion" value={sat.MEAN_MOTION} />
+                <InfoRow label="Epoch" value={sat.EPOCH} />
+                <InfoRow label="Latitude" value={lat.toFixed(2)} />
+                <InfoRow label="Longitude" value={lng.toFixed(2)} />
+                <InfoRow label="Altitude" value={`${height.toFixed(2)} km`} />
+              </div>
             </EntityDescription>
           </Entity>
         );
