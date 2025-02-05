@@ -84,14 +84,24 @@ const App = () => {
           <Entity
             key={index}
             position={Cartesian3.fromDegrees(lng, lat, height * 1000)} // Convert km to meters
+            // name={sat.NORAD_CAT_ID}
             // point={{ pixelSize: 10 }}
           >
             <PointGraphics pixelSize={2} />
             <EntityDescription>
               <h1>{sat.OBJECT_NAME}</h1>
-              <p>Latitude: {lat.toFixed(2)}</p>
-              <p>Longitude: {lng.toFixed(2)}</p>
-              <p>Altitude: {height.toFixed(2)} km</p>
+              <hr style={{ border: '1px solid lightgray' }} />
+              <div className='orbit-elems'>
+                <p>Latitude: {lat.toFixed(2)}</p>
+                <p>Longitude: {lng.toFixed(2)}</p>
+                <p>Altitude: {height.toFixed(2)} km</p>
+                <p>Mean Motion: {sat.MEAN_MOTION.toFixed(2)}</p>
+                <p>Eccentricity: {sat.ECCENTRICITY}</p>
+                <p>Eccentricity: {sat.ECCENTRICITY}</p>
+                <p>Eccentricity: {sat.ECCENTRICITY}</p>
+                <p>Eccentricity: {sat.ECCENTRICITY}</p>
+              </div>
+
             </EntityDescription>
           </Entity>
         );

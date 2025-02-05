@@ -101,6 +101,7 @@ const About: React.FC = () => {
           <Typography sx={{ color: 'white' }} >
             <ul>
               <li>Click on the satellites to view their coordinates and orbital elements.</li>
+              <li>Double click or use the camera button to track a satellite up close</li>
               <li>Press the home button to re-center the map (your location!)</li>
             </ul>
           </Typography>
