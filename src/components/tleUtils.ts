@@ -35,3 +35,5 @@ export const getSatellitePosition = (sat: Satellite) => {
   const observationDate = new Date().getTime();
   return getSatelliteInfo(tle, observationDate);
 };
+
+export { getSatelliteInfo };
