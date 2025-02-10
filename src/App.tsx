@@ -1,62 +1,15 @@
-import { Viewer, Entity, PointGraphics, EntityDescription } from 'resium';
-import { Cartesian3, Ion } from 'cesium';
+import { Viewer } from 'resium';
+import { Ion } from 'cesium';
 import './App.css';
 import { useEffect, useState } from 'react';
-import { getSatelliteInfo } from 'tle.js';
-import { activeSatData } from './activeSatData';
 // import { fetchSatelliteData } from './api';
 import About from './About';
+import { updateEntities } from './components/entityUtils';
 
 // API now pulls ACTIVE satellites and can change GROUPS
 // So far fetching speed is an issue. Error 403
 
 Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmU4MzM0Mi0xN2EyLTQ1MTUtOTJlYi02YzVhMjQ2Njc5NGQiLCJpZCI6MjQ3MDA3LCJpYXQiOjE3Mjg1MTg3MjJ9.yPRy0QbCHvLMNl8PPKBHHR_fIzpWmkUAsmvnSuDod_U';
-
-
-
-// Function to convert JSON to TLE lines
-interface Satellite {
-  NORAD_CAT_ID: number;
-  OBJECT_ID: string;
-  EPOCH: string;
-  INCLINATION: number;
-  RA_OF_ASC_NODE: number;
-  ECCENTRICITY: number;
-  ARG_OF_PERICENTER: number;
-  MEAN_ANOMALY: number;
-  MEAN_MOTION: number;
-  OBJECT_NAME: string;
-}
-
-const convertToTLE = (sat: Satellite): [string, string] => {
-  const line1 = `1 ${sat.NORAD_CAT_ID.toString().padStart(5, '0')}U ${sat.OBJECT_ID.slice(0, 8)} ${sat.EPOCH.slice(2, 8)}.${Math.floor(
-    (new Date(sat.EPOCH).getTime() % 86400000) / 86400
-  ).toString().padStart(8, '0')}  .00000000  00000-0  00000-0 0  9990`;
-  const line2 = `2 ${sat.NORAD_CAT_ID.toString().padStart(5, '0')} ${sat.INCLINATION.toFixed(4).padStart(8, ' ')} ${sat.RA_OF_ASC_NODE.toFixed(4).padStart(
-    8,
-    ' '
-  )} ${sat.ECCENTRICITY.toString().slice(2, 8).padStart(7, '0')} ${sat.ARG_OF_PERICENTER.toFixed(4).padStart(8, ' ')} ${sat.MEAN_ANOMALY.toFixed(4).padStart(
-    8,
-    ' '
-  )} ${sat.MEAN_MOTION.toFixed(8).padStart(11, ' ')}`;
-
-  return [line1, line2];
-};
-
-//Goes with Entities
-const infoRowStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center', 
-  paddingInline: '5px',
-};
-
-const InfoRow = ({ label, value }: { label: string; value: string | number }) => (
-  <div style={infoRowStyle}>
-    <strong style={{ marginBottom: '10px', marginTop: '1px' }}>{label}:</strong>
-    <p style={{ marginBottom: '10px', marginTop: '1px' }}>{value}</p>
-  </div>
-);
 
 
 const App = () => {
@@ -82,50 +35,7 @@ const App = () => {
 
 
   useEffect(() => {
-    const updateEntities = () => {
-      const newEntities = activeSatData.slice(0, 1900).map((sat, index) => {
-        const tle = convertToTLE(sat);
-        const observationDate = new Date().getTime();
-
-        const satInfo = getSatelliteInfo(tle, observationDate);
-        if (!satInfo) {
-          console.warn(`Failed to process satellite: ${sat.OBJECT_NAME}`);
-          return null;
-        }
-
-        const { lat, lng, height } = satInfo;
-
-        return (
-          <Entity
-            key={index}
-            position={Cartesian3.fromDegrees(lng, lat, height * 1000)} // Convert km to meters
-            name="Orbital Elements"
-            // point={{ pixelSize: 10 }}
-          >
-            <PointGraphics pixelSize={2} />
-            <EntityDescription>
-              <h1>{sat.OBJECT_NAME}</h1>
-              <hr style={{ border: '1px solid lightgray' }} />
-              <div className='orbit-elems'>
-                <InfoRow label="NORAD ID" value={sat.NORAD_CAT_ID} />
-                <InfoRow label="Launch Year" value={sat.OBJECT_ID.slice(0, 4)} />
-                <InfoRow label="Inclination" value={sat.INCLINATION} />
-                <InfoRow label="Right Ascension" value={sat.RA_OF_ASC_NODE} />
-                <InfoRow label="Mean Motion" value={sat.MEAN_MOTION} />
-                <InfoRow label="Epoch" value={sat.EPOCH} />
-                <InfoRow label="Latitude" value={lat.toFixed(2)} />
-                <InfoRow label="Longitude" value={lng.toFixed(2)} />
-                <InfoRow label="Altitude" value={`${height.toFixed(2)} km`} />
-              </div>
-            </EntityDescription>
-          </Entity>
-        );
-      });
-
-      setEntities(newEntities.filter((entity): entity is JSX.Element => entity !== null));
-    };
-
-    updateEntities(); // Initial call
+    updateEntities(setEntities); // Initial call
     const intervalId = setInterval(updateEntities, 60000); // Update every minute
 
     return () => clearInterval(intervalId); // Cleanup on unmount
